@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.extension.en.yiffer
 
 import android.net.Uri
-import android.util.Log
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -23,15 +22,15 @@ class Yiffer : HttpSource() {
     override val name = "Yiffer"
 
     override val baseUrl = "https://yiffer.xyz"
-    private val baseStaticUrl = "https://static.yiffer.xyz"
 
     override val lang = "en"
 
-    override val supportsLatest = false
+    override val supportsLatest = true
 
     override val client: OkHttpClient = network.cloudflareClient
 
     private val json: Json by injectLazy()
+    private val baseStaticUrl = "https://static.yiffer.xyz"
 
     private fun buildSearchRequest(
         searchText: String = "",
@@ -59,8 +58,6 @@ class Yiffer : HttpSource() {
             builder.appendQueryParameter("keywordIds[]", keywordId.toString())
         }
 
-        Log.i("BuildUrl", baseUrl + builder.build().toString())
-
         return GET(baseUrl + builder.build().toString())
     }
 
@@ -75,7 +72,7 @@ class Yiffer : HttpSource() {
                             artist = it.artist
                             author = it.artist
                             status = SManga.COMPLETED
-                            thumbnail_url = "/comics/${it.name}/thumbnail.jpg"
+                            thumbnail_url = "$baseStaticUrl/comics/${it.name}/thumbnail.jpg"
                         }
                     },
                     searchResponse.numberOfPages > searchResponse.page,
@@ -84,7 +81,9 @@ class Yiffer : HttpSource() {
         }
     }
 
-    override fun popularMangaRequest(page: Int): Request = buildSearchRequest(page = page, order = "updated")
+    override fun popularMangaRequest(page: Int): Request = buildSearchRequest(page = page, order = "userRating")
+
+    override fun latestUpdatesRequest(page: Int): Request = buildSearchRequest(page = page, order = "updated")
 
     override fun chapterListParse(response: Response): List<SChapter> {
         response.use { resp ->
@@ -101,14 +100,6 @@ class Yiffer : HttpSource() {
     }
 
     override fun imageUrlParse(response: Response): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun latestUpdatesParse(response: Response): MangasPage {
-        TODO("Not yet implemented")
-    }
-
-    override fun latestUpdatesRequest(page: Int): Request {
         TODO("Not yet implemented")
     }
 
@@ -197,6 +188,8 @@ class Yiffer : HttpSource() {
     override fun searchMangaParse(response: Response): MangasPage = parseSearchResponse(response)
 
     override fun popularMangaParse(response: Response): MangasPage = parseSearchResponse(response)
+
+    override fun latestUpdatesParse(response: Response): MangasPage = parseSearchResponse(response)
 
     private fun parseChapterDate(date: String): Long {
         val dateStringSplit = date.split("T")[0].split("-").map { it.toInt() }
