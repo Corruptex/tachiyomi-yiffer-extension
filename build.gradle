@@ -6,7 +6,7 @@ ext {
     extName = 'Yiffer'
     pkgNameSuffix = 'en.yiffer'
     extClass = '.Yiffer'
-    extVersionCode = 3
+    extVersionCode = 4
     isNsfw = true
 }
 
