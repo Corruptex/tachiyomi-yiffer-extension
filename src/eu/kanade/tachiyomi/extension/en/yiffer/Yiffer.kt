@@ -108,7 +108,7 @@ class Yiffer : HttpSource() {
             json.decodeFromString<ComicResponse>(res.body.string()).let { searchResponse ->
                 SManga.create().apply {
                     title = searchResponse.name
-                    thumbnail_url = "/comics/${searchResponse.name}/thumbnail.jpg"
+                    thumbnail_url = "$baseStaticUrl/comics/${searchResponse.name}/thumbnail.jpg"
                     status = SManga.COMPLETED
                     artist = searchResponse.artist
                     author = searchResponse.artist
